@@ -54,4 +54,10 @@ public class Vehicle implements Serializable
     {
         return this.model;
     }
+
+    public String toString()
+    {
+        String record = "\tLicense#: " + getLicenseNum() + "\tCar-color: " + getColor() + "\tCar-Make: " + getMake() + "\tModel: " + getModel();
+        return record;
+    }
 }

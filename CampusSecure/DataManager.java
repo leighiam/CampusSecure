@@ -113,6 +113,49 @@ public class DataManager
 		}
 	}
 
+	public void saveDormVisitor(String fileName, ArrayList<DormVisitor> dormVisitor)
+	{
+		String output = "Successfully save!";
+		try
+		{
+			FileOutputStream fout= new FileOutputStream (fileName);
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(dormVisitor);
+			fout.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			e2.printStackTrace();
+		}
+	}
+
+	public void saveSchoolMember(String fileName, ArrayList<SchoolMember> schoolMember)
+	{
+		String output = "Successfully save!";
+		try
+		{
+			FileOutputStream fout= new FileOutputStream (fileName);
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(schoolMember);
+			fout.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			e2.printStackTrace();
+		}
+	}
 
 	public ArrayList<Object> read(String fileName, ArrayList<Object> object) 
 	{
@@ -253,5 +296,62 @@ public class DataManager
 			System.out.println(output);
 		}
 		return pedestrian;
+	}
+
+	public ArrayList<SchoolMember> readSchoolMember(String fileName, ArrayList<SchoolMember> schoolMember) 
+	{
+		String output = "Successfully saved!";
+		try
+		{
+			FileInputStream fin= new FileInputStream (fileName);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			schoolMember = (ArrayList<SchoolMember>)ois.readObject();
+			fin.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			System.out.println(output);
+		}
+		catch(ClassNotFoundException e3)
+		{
+			output = "Cannot acces file class.";
+			System.out.println(output);
+		}
+		return schoolMember;
+	}
+     
+    
+    public ArrayList<DormVisitor> readDormVisitor(String fileName, ArrayList<DormVisitor> dormVisitor) 
+	{
+		String output = "Successfully saved!";
+		try
+		{
+			FileInputStream fin= new FileInputStream (fileName);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			dormVisitor = (ArrayList<DormVisitor>)ois.readObject();
+			fin.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			System.out.println(output);
+		}
+		catch(ClassNotFoundException e3)
+		{
+			output = "Cannot acces file class.";
+			System.out.println(output);
+		}
+		return dormVisitor;
 	}
 }

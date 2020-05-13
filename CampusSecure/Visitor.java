@@ -18,7 +18,7 @@ public class Visitor implements Serializable
 
     public String getName()
     {
-        return name.getFullName();
+        return this.name.getFullName();
     }
 
     public long getEntryDate()

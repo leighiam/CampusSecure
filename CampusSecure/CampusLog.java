@@ -10,6 +10,8 @@ public class CampusLog implements Serializable
     private ArrayList<Pedestrian> pedestrianlist = new ArrayList<Pedestrian>();
     private ArrayList<Driver> driverlist = new ArrayList<Driver>();
     private ArrayList<KeyManager> keylist = new ArrayList<KeyManager>();
+    private ArrayList<SchoolMember> schoolList = new ArrayList<SchoolMember>();
+    private ArrayList<DormVisitor> dormlist = new ArrayList<DormVisitor>();
 
     public boolean checkCredentials(String password, String username, String type)
     {
@@ -50,6 +52,16 @@ public class CampusLog implements Serializable
         keylist.add(new KeyManager(Keynum, keyname, keydate, fname, lname, numkeys, timeloaned, keypurpose));
     }
 
+    public void createSchoolMember(String fname, String lname, String type, long date, String lnum, String col, String mk, String mod)
+    {
+        schoolList.add(new SchoolMember(fname, lname, type, date, lnum, col, mk, mod));
+    }
+
+    public void createDormVisitor(String fname, String lname, long date, String entime, String purp, long vtorID, String vteefname, String vteelname,long vteeID)
+    {
+        dormlist.add(new DormVisitor(fname, lname, endate, entime, purp, vtorID, vteefname, vteelname, vteeID));
+    }
+
    public void resetUser(String username, String attribute, String newvalue)
    {
        for(User user: userlist)
@@ -81,6 +93,16 @@ public class CampusLog implements Serializable
         return entry;
    }
 
+   public int getDormVisitorEntryNo()
+   {
+       int entry = 0;
+        for(DormVisitor dormVisitor: dormlist)
+        {
+            entry = dormVisitor.getEntryNo();
+        }
+        return entry;
+   }
+
    public int getKeyEntryNo()
    {
         int entry = 0;
@@ -98,6 +120,17 @@ public class CampusLog implements Serializable
            if(driver.getEntryNo() == entryNo)
            {
                driver.setExitTime(time);
+           }
+       }
+   }
+
+   public void updateDormVisitorExit(int entryNo, String time)
+   {
+       for(DormVisitor dormVisitor: dormlist)
+       {
+           if(dormVisitor.getEntryNo() == entryNo)
+           {
+               dormVisitor.setExitTime(time);
            }
        }
    }
@@ -122,7 +155,7 @@ public class CampusLog implements Serializable
                 key.setReturnTime(time);
             }
         }
-   }
+    }
 
    public void displayUsers()
    {
@@ -153,6 +186,22 @@ public class CampusLog implements Serializable
         for(KeyManager key: keylist)
         {
             System.out.println(key.toString());
+        }
+   }
+
+   public void displayAllDormVisitors()
+    {
+        for(DormVisitor dormVisitor: dormlistt)
+        {
+            System.out.println(dormVisitor.toString());
+        }
+   }
+
+   public void displayAllSchoolMembers()
+    {
+        for(SchoolMember schoolMember: schoolList)
+        {
+            System.out.println(schoolMember.toString());
         }
    }
 
@@ -207,7 +256,7 @@ public class CampusLog implements Serializable
         return info;
     }
 
-    public String displayPedestrianByDate(long start, long end)
+    public String displayDormVisitorByDate(long start, long end)
     {
         String info = "";
         String startday = "" + start + "";
@@ -236,14 +285,65 @@ public class CampusLog implements Serializable
             {
                 while(startdate.isBefore(enddate) == true || startdate.toString().equals(enddate.toString()))
                 {
-                    for(Pedestrian pedestrian: pedestrianlist)
+                    for(DormVisitor dormVisitor: dormlist)
                     {
                         String str = startdate.toString();
-                        long ed = pedestrian.getEntryDate();
-                        String str2 = pedestrian.toString(ed);
+                        long ed = dormVisitor.getEntryDate();
+                        String str2 = dormVisitor.toString(ed);
                         if(str2.equals(str))
                         {
-                            info += pedestrian.toString();
+                            info += dormVisitor.toString();
+                        }
+                    }
+                    startdate = startdate.plusDays(1);
+                }
+            }
+            else if(time > 30 || time < 30)
+            {
+                System.out.println("Invalid Period");
+                System.out.println(time);
+            }
+        }
+        return info;
+    }
+
+    public String displaySchoolMemberByDate(long start, long end)
+    {
+        String info = "";
+        String startday = "" + start + "";
+		int year = Integer.parseInt(startday.substring(0,4));
+		int month = Integer.parseInt(startday.substring(4,6));
+		int day = Integer.parseInt(startday.substring(6));
+        String endday = "" + end + "";
+		int year1 = Integer.parseInt(endday.substring(0,4));
+		int month2 = Integer.parseInt(endday.substring(4,6));
+		int day3 = Integer.parseInt(endday.substring(6));
+        LocalDate startdate = LocalDate.of(year, month, day);
+        LocalDate enddate = LocalDate.of(year1, month2, day3);
+        LocalDate today = LocalDate.now();
+        if(enddate.isAfter(today) == true)
+        {
+            System.out.println("Invalid Date!");
+        }
+        else if(enddate.isBefore(startdate) == true)
+        {
+            System.out.println("Invalid Date!");
+        }
+        else
+        {
+            long time = Duration.between(startdate.atStartOfDay(), enddate.atStartOfDay()).toDays();
+            if(time == 30L)
+            {
+                while(startdate.isBefore(enddate) == true || startdate.toString().equals(enddate.toString()))
+                {
+                    for(SchoolMember schoolMember: schoolList)
+                    {
+                        String str = startdate.toString();
+                        long ed = schoolMember.getRegistryDate();
+                        String str2 = schoolMember.toString(ed);
+                        if(str2.equals(str))
+                        {
+                            info += schoolMember.toString();
                         }
                     }
                     startdate = startdate.plusDays(1);
@@ -309,6 +409,57 @@ public class CampusLog implements Serializable
         return info;
     }
 
+    public String displayPedestrianByDate(long start, long end)
+    {
+        String info = "";
+        String startday = "" + start + "";
+		int year = Integer.parseInt(startday.substring(0,4));
+		int month = Integer.parseInt(startday.substring(4,6));
+		int day = Integer.parseInt(startday.substring(6));
+        String endday = "" + end + "";
+		int year1 = Integer.parseInt(endday.substring(0,4));
+		int month2 = Integer.parseInt(endday.substring(4,6));
+		int day3 = Integer.parseInt(endday.substring(6));
+        LocalDate startdate = LocalDate.of(year, month, day);
+        LocalDate enddate = LocalDate.of(year1, month2, day3);
+        LocalDate today = LocalDate.now();
+        if(enddate.isAfter(today) == true)
+        {
+            System.out.println("Invalid Date!");
+        }
+        else if(enddate.isBefore(startdate) == true)
+        {
+            System.out.println("Invalid Date!");
+        }
+        else
+        {
+            long time = Duration.between(startdate.atStartOfDay(), enddate.atStartOfDay()).toDays();
+            if(time == 30L)
+            {
+                while(startdate.isBefore(enddate) == true || startdate.toString().equals(enddate.toString()))
+                {
+                    for(Pedestrian pedestrian: pedestrianlist)
+                    {
+                        String str = startdate.toString();
+                        long ed = pedestrian.getEntryDate();
+                        String str2 = pedestrian.toString(ed);
+                        if(str2.equals(str))
+                        {
+                            info += pedestrian.toString();
+                        }
+                    }
+                    startdate = startdate.plusDays(1);
+                }
+            }
+            else if(time > 30 || time < 30)
+            {
+                System.out.println("Invalid Period");
+                System.out.println(time);
+            }
+        }
+        return info;
+    }
+
     public ArrayList<User> getUserList()
     {
         return this.userlist;
@@ -329,12 +480,24 @@ public class CampusLog implements Serializable
         return this.keylist;
     }
 
+    public ArrayList<DormVisitor> getDormList()
+    {
+        return this.dormlist;
+    }
+
+    public ArrayList<SchoolMember> getSchoolList()
+    {
+        return this.schoolList;
+    }
+
     public void saveRecordLists()
     {
         objectlist.add(getUserList());
         objectlist.add(getDriverList());
         objectlist.add(getPedestrianList());
         objectlist.add(getKeyList());
+        objectlist.add(getDormList());
+        objectlist.add(getSchoolList());
     }
 
     /**
@@ -364,6 +527,16 @@ public class CampusLog implements Serializable
     public void writeKeyList(String filename)
 	{
 		dm.saveKey(filename, this.keylist);
+    }
+
+    public void writeDormList(String filename)
+	{
+		dm.saveDormVisitor(filename, this.dormlist);
+    }
+
+    public void writeSchoolList(String filename)
+	{
+		dm.saveSchoolMember(filename, this.schoolList);
     }
 	
 	/**
@@ -420,12 +593,46 @@ public class CampusLog implements Serializable
         }*/
     }
 
+    public void readDormList(String filename)
+    {
+        ArrayList<DormVisitor> dorm2 = new ArrayList<DormVisitor>();
+        peds2 = dm.readDormVisitor(filename, dorm2);
+        for(DormVisitor dv: dorm2)
+        {
+            String[] names = dv.getName().split(" ");
+            String[] names2 = dv.getVisiteeName().split(" ");
+            createDormVisitor(names[0], names[1], dv.getEntryDate(), dv.getEntryTime(), dv.getPurpose(), dv.getVisitorID(), names2[0], names[1], dv.getVisiteeID());
+        }
+    }
+
+    public void readSchoolList(String filename)
+    {
+        ArrayList<SchoolMember> school2 = new ArrayList<SchoolMember>();
+        school2 = dm.readSchoolMember(filename, school2);
+        for(SchoolMember sm: school2)
+        {
+            String[] names = sm.getName().split(" ");
+            String[] vehicles = sm.getVehiclesList().toArray(new String[sm.getVehicleList().size()]);
+            String lnum = vehicle[0].getLicenseNum();
+            String col = vehicle[0].getColor();
+            String mk = vehicle[0].getMake();
+            String mod = vehicle[0].getModel();
+            createDormVisitor(names[0], names[1], sm.getType.toString(), sm.getRegistryDate(), lnum, col, mk, mod);
+            for(i=1; i < vehicles.length; i++)
+            {
+                school2.get(school2.size()-1).addVehicle(vehicle[i].getLicenseNum(), vehicle[i].getColor(), vehicle[i].getMake(), vehicle[i].getModel());
+            }
+        }
+    }
+
     public void getLists()
     {
         readUserList("UserInfo.txt");
         readDriverList("Driver.txt");
         readPedestrianList("PedestrianInfo.txt");
         readKeyList("KeyInfo.txt");
+        readDormList("DormVisitor.txt");
+        readSchoolList("SchoolMember.txt");
     } 
 
     public void saveLists()
@@ -434,5 +641,7 @@ public class CampusLog implements Serializable
         writeDriverList("Driver.txt");
         writePedestrianList("PedestrianInfo.txt");
         writeKeyList("KeyInfo.txt");
+        writeDormList("DormVisitor.txt");
+        writeSchoolList("SchoolMember.txt");
     }
 }

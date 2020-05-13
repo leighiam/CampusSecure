@@ -6,7 +6,7 @@ public class User implements Serializable
     private String username;
     private String password;
     private long idNum;
-    private Type type;
+    private UserType type;
 
     public User(String fname, String lname, String uname, String pword, long id, String utype)
     {
@@ -14,7 +14,7 @@ public class User implements Serializable
         this.username = uname;
         this.password = pword;
         this.idNum = id;
-        this.type = Type.valueOf(utype.toUpperCase());
+        this.type = UserType.valueOf(utype.toUpperCase());
     }
 
     public void setFirstName(String fname)
@@ -67,7 +67,7 @@ public class User implements Serializable
         this.type = Type.valueOf(utype);
     }
 
-    public Type getType()
+    public UserType getType()
     {
         return this.type;
     }
@@ -92,7 +92,7 @@ public class User implements Serializable
 		return result;
     }
     
-    public boolean authenType(Type type)
+    public boolean authenType(UserType type)
     {
         boolean result = false;
         if(getType() == type)
