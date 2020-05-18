@@ -234,7 +234,7 @@ public class CampusLogTest
                             String timeloaned = input.nextLine();
                             System.out.println("Purpose: ");
                             String purp = input.next();
-                            log.createKey(keynum, keyname, entdate, lfname, llname, numkeysloaned, timeloaned, purp);
+                            log.createKey(keynum, keyname, entdate, lfname, llname, timeloaned, purp);
                             log.updateKeyReturnTime(log.getKeyEntryNo(), "");
                             log.displayAllKeys();
                         }

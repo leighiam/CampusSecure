@@ -46,6 +46,28 @@ public class DataManager
 			e2.printStackTrace();
 		}
 	}
+
+	public void saveReport(String fileName, ArrayList<Report> report)
+	{
+		String output = "Successfully save!";
+		try
+		{
+			FileOutputStream fout= new FileOutputStream (fileName);
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(report);
+			fout.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			e2.printStackTrace();
+		}
+	}
     
     public void saveDriver(String fileName, ArrayList<Driver> driver)
 	{
@@ -211,6 +233,35 @@ public class DataManager
 			System.out.println(output);
 		}
 		return user;
+	}
+	
+	public ArrayList<Report> readReport(String fileName, ArrayList<Report> report) 
+	{
+		String output = "Successfully saved!";
+		try
+		{
+			FileInputStream fin= new FileInputStream (fileName);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			report = (ArrayList<Report>)ois.readObject();
+			fin.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			System.out.println(output);
+			e2.printStackTrace();
+		}
+		catch(ClassNotFoundException e3)
+		{
+			output = "Cannot acces file class.";
+			System.out.println(output);
+		}
+		return report;
     }
     
     public ArrayList<Driver> readDriver(String fileName, ArrayList<Driver> driver) 
@@ -240,8 +291,36 @@ public class DataManager
 		}
 		return driver;
     }
-    
-    public ArrayList<KeyManager> readKey(String fileName, ArrayList<KeyManager> key) 
+	
+	public ArrayList<KeyManager> readKeys(String filename, ArrayList<KeyManager> key)
+	{
+		String output = "Successfully saved!";
+		try{
+			FileInputStream fin = new FileInputStream(filename);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			key = (ArrayList<KeyManager>)ois.readObject();
+			fin.close();
+		}
+		catch(FileNotFoundException e1)
+		{
+			output = "File does not exist.";
+			System.out.println(output);
+		}
+		catch(IOException e2)
+		{
+			output = "Cannot access file.";
+			System.out.println(output + "\nKeys!");
+			e2.printStackTrace();
+		}
+		catch(ClassNotFoundException e3)
+		{
+			output = "Cannot acces file class.";
+			System.out.println(output);
+		}
+		return key;
+	}
+
+    /*public ArrayList<KeyManager> readKey(String fileName, ArrayList<KeyManager> key) 
 	{
 		String output = "Successfully saved!";
 		try
@@ -259,7 +338,7 @@ public class DataManager
 		catch(IOException e2)
 		{
 			output = "Cannot access file.";
-			System.out.println(output);
+			System.out.println(output + "\nKeys!");
 		}
 		catch(ClassNotFoundException e3)
 		{
@@ -267,7 +346,7 @@ public class DataManager
 			System.out.println(output);
 		}
 		return key;
-	}
+	}*/
      
     
     public ArrayList<Pedestrian> readPedestrian(String fileName, ArrayList<Pedestrian> pedestrian) 
@@ -315,8 +394,9 @@ public class DataManager
 		}
 		catch(IOException e2)
 		{
-			output = "Cannot access file.";
+			output = "Cannot access file. member";
 			System.out.println(output);
+			e2.printStackTrace();
 		}
 		catch(ClassNotFoundException e3)
 		{

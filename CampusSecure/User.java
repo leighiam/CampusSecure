@@ -8,13 +8,13 @@ public class User implements Serializable
     private long idNum;
     private UserType type;
 
-    public User(String fname, String lname, String uname, String pword, long id, String utype)
+    public User(String fname, String lname, String uname, String pword, long id, String type)
     {
         this.name = new Name(fname, lname);
         this.username = uname;
         this.password = pword;
         this.idNum = id;
-        this.type = UserType.valueOf(utype.toUpperCase());
+        this.type = UserType.valueOf(type.toUpperCase());
     }
 
     public void setFirstName(String fname)
@@ -64,7 +64,7 @@ public class User implements Serializable
 
     public void setType(String utype)
     {
-        this.type = Type.valueOf(utype);
+        this.type = UserType.valueOf(utype);
     }
 
     public UserType getType()
@@ -120,11 +120,11 @@ public class User implements Serializable
         {
             setPassword(newvalue);
         }
-        else if(attribute.equalsIgnoreCase("id"))
+        /*else if(attribute.equalsIgnoreCase("id"))
         {
             long id = Long.parseLong(newvalue);
             setIDNum(id);
-        }
+        }*/
     }
 
     public String toString(long record)

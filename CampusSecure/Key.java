@@ -1,4 +1,6 @@
-public class Key
+import java.io.Serializable;
+
+public class Key implements Serializable
 {
 	
 	private String keyNum;

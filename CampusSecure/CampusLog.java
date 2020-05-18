@@ -5,6 +5,7 @@ import java.io.*;
 public class CampusLog implements Serializable
 {
     private ArrayList<Object> objectlist = new ArrayList<Object>();
+
     private DataManager dm = new DataManager();
     private ArrayList<User> userlist = new ArrayList<User>();
     private ArrayList<Pedestrian> pedestrianlist = new ArrayList<Pedestrian>();
@@ -12,6 +13,7 @@ public class CampusLog implements Serializable
     private ArrayList<KeyManager> keylist = new ArrayList<KeyManager>();
     private ArrayList<SchoolMember> schoolList = new ArrayList<SchoolMember>();
     private ArrayList<DormVisitor> dormlist = new ArrayList<DormVisitor>();
+    private ArrayList<Report> reportlist = new ArrayList<Report>();
 
     public boolean checkCredentials(String password, String username, String type)
     {
@@ -22,7 +24,7 @@ public class CampusLog implements Serializable
             {
                 if(user.authenUsername(username) == true)
                 {
-                    if(user.authenType(Type.valueOf(type.toUpperCase())) == true)
+                    if(user.authenType(UserType.valueOf(type.toUpperCase())) == true)
                     {
                         result = true;
                     }
@@ -47,107 +49,227 @@ public class CampusLog implements Serializable
         driverlist.add(new Driver(fname, lname, endate, entime, purp, lnum, col, mk, mod));
     }
 
-    public void createKey(String Keynum, String keyname, long keydate, String fname, String lname, int numkeys, String timeloaned, String keypurpose)
+    public void createKey(String Keynum, String keyname, long keydate, String fname, String lname, String timeloaned, String keypurpose)
     {
-        keylist.add(new KeyManager(Keynum, keyname, keydate, fname, lname, numkeys, timeloaned, keypurpose));
+        Name name = new Name(fname, lname);
+        int numkeys = getNumKeys(name.getFullName());
+        int entryNo = keylist.size() + 1;
+        keylist.add(new KeyManager(Keynum, keyname, keydate, fname, lname, numkeys, timeloaned, keypurpose, entryNo));
+        //keylist.get(keylist.size() - 1).setEntryNo(entryNo);
+        //keylist.get(keylist.size() - 1).setNumOfKeys(numkeys);
     }
 
-    public void createSchoolMember(String fname, String lname, String type, long date, String lnum, String col, String mk, String mod)
+    public void createSchoolMember(String fname, String lname, String type, long id, long date, String lnum, String col, String mk, String mod)
     {
-        schoolList.add(new SchoolMember(fname, lname, type, date, lnum, col, mk, mod));
+        schoolList.add(new SchoolMember(fname, lname, type, id, date, lnum, col, mk, mod));
     }
 
-    public void createDormVisitor(String fname, String lname, long date, String entime, String purp, long vtorID, String vteefname, String vteelname,long vteeID)
+    public void createDormVisitor(String fname, String lname, long endate, String entime, String purp, long vtorID, String vteefname, String vteelname,long vteeID)
     {
         dormlist.add(new DormVisitor(fname, lname, endate, entime, purp, vtorID, vteefname, vteelname, vteeID));
     }
 
-   public void resetUser(String username, String attribute, String newvalue)
-   {
-       for(User user: userlist)
-       {
-           if(user.getUsername().equalsIgnoreCase(username))
-           {
-               user.updateUser(attribute, newvalue);
-           }
-       }
-   }
+    public void createReport(String fname, String lname, String utype, long uid, String reportInfo, String rtype, String timeperiod)
+    {
+        int entrynum = reportlist.size() + 1;
+        reportlist.add(new Report(fname, lname, utype, uid, reportInfo, rtype, timeperiod));
+        reportlist.get(reportlist.size() - 1).setEntryNo(entrynum);
+        System.out.println(fname + lname);
+        //System.out.println(reportlist.get(reportlist.size() - 1).getEntryNo());
+    }
 
-   public int getDriverEntryNo()
-   {
-       int entry = 0;
+    public int getNumKeys(String name)
+    {
+        int c = 1;
+        for(KeyManager key: keylist)
+        {
+            if(name.equals(key.getLoaneeName()))
+            {
+                c+=1;
+            }
+        }
+        return c;
+    }
+
+    public boolean isRegistered(String lnum)
+    {
+        boolean response = false;
+        for(SchoolMember sm: schoolList)
+        {
+            if(lnum.equals(sm.getLicenseNum(lnum)))
+            {
+                response = true;
+            }
+        }
+        return response;
+    }
+
+    public long getUserID(String username)
+    {
+        long response = 0L;
+        for(User user: userlist)
+        {
+            if(username.equals(user.getUsername()))
+            {
+                response = user.getID();
+            }
+        }
+        return response;
+    }
+
+    public String getUserFName(String username)
+    {
+        String response = "";
+        for(User user: userlist)
+        {
+            if(username.equals(user.getUsername()))
+            {
+                String[] name = user.getName().split(" ");
+                String fname = name[0];
+                response = fname;
+            }
+        }
+        return response;
+    }
+
+    public String getUserLName(String username)
+    {
+        String response = "";
+        for(User user: userlist)
+        {
+            if(username.equals(user.getUsername()))
+            {
+                String[] name = user.getName().split(" ");
+                String lname = name[1];
+                response = lname;
+            }
+        }
+        return response;
+    }
+
+    public void resetUser(String username, String attribute, String newvalue)
+    {
+        for(User user: userlist)
+        {
+            if(user.getUsername().equalsIgnoreCase(username))
+            {
+                user.updateUser(attribute, newvalue);
+            }
+        }
+    }
+
+    public void deleteUser(long id)
+    {
+        for(int i = 0; i < userlist.size(); i++)
+        {
+            if(id == userlist.get(i).getID())
+            {
+                userlist.remove(i);
+            }
+        }
+    } 
+
+    public void deregisterVehicle(String lnum)
+    {
+        for(int i = 0; i < schoolList.size(); i++)
+        {
+            ArrayList<Vehicle> vec = schoolList.get(i).getVehicleList();
+            for(int x = 0; x < vec.size(); x++)
+            {
+                if(lnum.equals(vec.get(x).getLicenseNum()))
+                {
+                    schoolList.get(i).deregisterVehicle(lnum);
+                }
+            }
+        }
+    }
+
+    public void deleteSchoolMember(long id)
+    {
+        for(int i = 0; i < schoolList.size(); i++) 
+        {
+            if(id == schoolList.get(i).getID())
+            {
+                schoolList.remove(i);
+            }
+        }
+    }
+
+    public int getDriverEntryNo()
+    {
+        int entry = 0;
         for(Driver driver: driverlist)
         {
             entry = driver.getEntryNo();
         }
         return entry;
-   }
+    }
 
-   public int getPedestrianEntryNo()
-   {
-       int entry = 0;
+    public int getPedestrianEntryNo()
+    {
+        int entry = 0;
         for(Pedestrian pedestrian: pedestrianlist)
         {
             entry = pedestrian.getEntryNo();
         }
         return entry;
-   }
+    }
 
-   public int getDormVisitorEntryNo()
-   {
-       int entry = 0;
+    public int getDormVisitorEntryNo()
+    {
+        int entry = 0;
         for(DormVisitor dormVisitor: dormlist)
         {
             entry = dormVisitor.getEntryNo();
         }
         return entry;
-   }
+    }
 
-   public int getKeyEntryNo()
-   {
+    public int getKeyEntryNo()
+    {
         int entry = 0;
         for(KeyManager key: keylist)
         {
             entry = key.getEntryNo();
         }
         return entry;
-   }
+    }
 
-   public void updateDriverExit(int entryNo, String time)
-   {
-       for(Driver driver: driverlist)
-       {
-           if(driver.getEntryNo() == entryNo)
-           {
-               driver.setExitTime(time);
-           }
-       }
-   }
+    public void updateDriverExit(int entryNo, String time)
+    {
+        for(Driver driver: driverlist)
+        {
+            if(driver.getEntryNo() == entryNo)
+            {
+                driver.setExitTime(time);
+            }
+        }
+    }
 
-   public void updateDormVisitorExit(int entryNo, String time)
-   {
-       for(DormVisitor dormVisitor: dormlist)
-       {
-           if(dormVisitor.getEntryNo() == entryNo)
-           {
-               dormVisitor.setExitTime(time);
-           }
-       }
-   }
+    public void updateDormVisitorExit(int entryNo, String time)
+    {
+        for(DormVisitor dormVisitor: dormlist)
+        {
+            if(dormVisitor.getEntryNo() == entryNo)
+            {
+                dormVisitor.setExitTime(time);
+            }
+        }
+    }
 
-   public void updatePedestrianExit(int entryNo, String time)
-   {
-       for(Pedestrian pedestrian: pedestrianlist)
-       {
-           if(pedestrian.getEntryNo() == entryNo)
-           {
-               pedestrian.setExitTime(time);
-           }
-       }
-   }
+    public void updatePedestrianExit(int entryNo, String time)
+    {
+        for(Pedestrian pedestrian: pedestrianlist)
+        {
+            if(pedestrian.getEntryNo() == entryNo)
+            {
+                pedestrian.setExitTime(time);
+            }
+        }
+    }
 
-   public void updateKeyReturnTime(int entryNo, String time)
-   {
+    public void updateKeyReturnTime(int entryNo, String time)
+    {
         for(KeyManager key: keylist)
         {
             if(key.getEntryNo() == entryNo)
@@ -157,65 +279,106 @@ public class CampusLog implements Serializable
         }
     }
 
-   public void displayUsers()
-   {
-       for(User user: userlist)
-       {
-           System.out.println(user.toString());
-       }
-   }
+    public void addVehicle(long id, String lnum, String col, String mk, String mod)
+    {
+        for(SchoolMember sm: schoolList)
+        {
+            if(id == sm.getID())
+            {
+                sm.addVehicle(lnum, col, mk, mod);
+            }
+        }
+    }
 
-   public void displayAllDrivers()
-   {
+    /*public void getSchoolVehicles()
+    {
+        ArrayList<Vehicle> v = schoolList.get(0).getVehicleList();
+        for(Vehicle vec: v)
+        {
+            System.out.println(vec.toString());
+        }
+        
+    }*/
+
+    public void displayUsers()
+    {
+        for(User user: userlist)
+        {
+            System.out.println(user.toString());
+        }
+    }
+
+    public void displayAllDrivers()
+    {
         for(Driver driver: driverlist)
         {
             System.out.println(driver.toString());
         }
-   }
+    }
 
-   public void displayAllPedestrians()
-   {
+    public void displayAllPedestrians()
+    {
         for(Pedestrian pedestrian: pedestrianlist)
         {
             System.out.println(pedestrian.toString());
         }
-   }
+    }
 
-   public void displayAllKeys()
+    public void displayAllKeys()
     {
         for(KeyManager key: keylist)
         {
             System.out.println(key.toString());
         }
-   }
+    }
 
-   public void displayAllDormVisitors()
+    public void displayAllDormVisitors()
     {
-        for(DormVisitor dormVisitor: dormlistt)
+        for(DormVisitor dormVisitor: dormlist)
         {
             System.out.println(dormVisitor.toString());
         }
-   }
+    }
 
-   public void displayAllSchoolMembers()
+    public void displayAllSchoolMembers()
     {
         for(SchoolMember schoolMember: schoolList)
         {
             System.out.println(schoolMember.toString());
         }
-   }
+    }
 
-   public String displayDriverByDate(long start, long end)
+    public void viewAllReports()
+    {
+        for(Report report: reportlist)
+        {
+                System.out.println(report.toString());
+        }
+    }
+
+    public void viewReport(int entrynum)
+    {
+        for(Report report: reportlist)
+        {
+            if(entrynum == report.getEntryNo())
+            {
+                System.out.println(report.toString());
+            }
+        }
+        System.out.println("View Reports Method Test\n" + entrynum);
+    }
+
+    public String displayDriverByDate(long start, long end)
     {
         String info = "";
         String startday = "" + start + "";
-		int year = Integer.parseInt(startday.substring(0,4));
-		int month = Integer.parseInt(startday.substring(4,6));
-		int day = Integer.parseInt(startday.substring(6));
+        int year = Integer.parseInt(startday.substring(0,4));
+        int month = Integer.parseInt(startday.substring(4,6));
+        int day = Integer.parseInt(startday.substring(6));
         String endday = "" + end + "";
-		int year1 = Integer.parseInt(endday.substring(0,4));
-		int month2 = Integer.parseInt(endday.substring(4,6));
-		int day3 = Integer.parseInt(endday.substring(6));
+        int year1 = Integer.parseInt(endday.substring(0,4));
+        int month2 = Integer.parseInt(endday.substring(4,6));
+        int day3 = Integer.parseInt(endday.substring(6));
         LocalDate startdate = LocalDate.of(year, month, day);
         LocalDate enddate = LocalDate.of(year1, month2, day3);
         LocalDate today = LocalDate.now();
@@ -260,13 +423,13 @@ public class CampusLog implements Serializable
     {
         String info = "";
         String startday = "" + start + "";
-		int year = Integer.parseInt(startday.substring(0,4));
-		int month = Integer.parseInt(startday.substring(4,6));
-		int day = Integer.parseInt(startday.substring(6));
+        int year = Integer.parseInt(startday.substring(0,4));
+        int month = Integer.parseInt(startday.substring(4,6));
+        int day = Integer.parseInt(startday.substring(6));
         String endday = "" + end + "";
-		int year1 = Integer.parseInt(endday.substring(0,4));
-		int month2 = Integer.parseInt(endday.substring(4,6));
-		int day3 = Integer.parseInt(endday.substring(6));
+        int year1 = Integer.parseInt(endday.substring(0,4));
+        int month2 = Integer.parseInt(endday.substring(4,6));
+        int day3 = Integer.parseInt(endday.substring(6));
         LocalDate startdate = LocalDate.of(year, month, day);
         LocalDate enddate = LocalDate.of(year1, month2, day3);
         LocalDate today = LocalDate.now();
@@ -304,20 +467,21 @@ public class CampusLog implements Serializable
                 System.out.println(time);
             }
         }
+        //System.out.println("this method works");
         return info;
     }
 
-    public String displaySchoolMemberByDate(long start, long end)
+    /*public String displaySchoolMemberByDate(long start, long end)
     {
         String info = "";
         String startday = "" + start + "";
-		int year = Integer.parseInt(startday.substring(0,4));
-		int month = Integer.parseInt(startday.substring(4,6));
-		int day = Integer.parseInt(startday.substring(6));
+        int year = Integer.parseInt(startday.substring(0,4));
+        int month = Integer.parseInt(startday.substring(4,6));
+        int day = Integer.parseInt(startday.substring(6));
         String endday = "" + end + "";
-		int year1 = Integer.parseInt(endday.substring(0,4));
-		int month2 = Integer.parseInt(endday.substring(4,6));
-		int day3 = Integer.parseInt(endday.substring(6));
+        int year1 = Integer.parseInt(endday.substring(0,4));
+        int month2 = Integer.parseInt(endday.substring(4,6));
+        int day3 = Integer.parseInt(endday.substring(6));
         LocalDate startdate = LocalDate.of(year, month, day);
         LocalDate enddate = LocalDate.of(year1, month2, day3);
         LocalDate today = LocalDate.now();
@@ -356,19 +520,19 @@ public class CampusLog implements Serializable
             }
         }
         return info;
-    }
+    }*/
 
     public String displayKeysByDate(long start, long end)
     {
         String info = "";
         String startday = "" + start + "";
-		int year = Integer.parseInt(startday.substring(0,4));
-		int month = Integer.parseInt(startday.substring(4,6));
-		int day = Integer.parseInt(startday.substring(6));
+        int year = Integer.parseInt(startday.substring(0,4));
+        int month = Integer.parseInt(startday.substring(4,6));
+        int day = Integer.parseInt(startday.substring(6));
         String endday = "" + end + "";
-		int year1 = Integer.parseInt(endday.substring(0,4));
-		int month2 = Integer.parseInt(endday.substring(4,6));
-		int day3 = Integer.parseInt(endday.substring(6));
+        int year1 = Integer.parseInt(endday.substring(0,4));
+        int month2 = Integer.parseInt(endday.substring(4,6));
+        int day3 = Integer.parseInt(endday.substring(6));
         LocalDate startdate = LocalDate.of(year, month, day);
         LocalDate enddate = LocalDate.of(year1, month2, day3);
         LocalDate today = LocalDate.now();
@@ -413,13 +577,13 @@ public class CampusLog implements Serializable
     {
         String info = "";
         String startday = "" + start + "";
-		int year = Integer.parseInt(startday.substring(0,4));
-		int month = Integer.parseInt(startday.substring(4,6));
-		int day = Integer.parseInt(startday.substring(6));
+        int year = Integer.parseInt(startday.substring(0,4));
+        int month = Integer.parseInt(startday.substring(4,6));
+        int day = Integer.parseInt(startday.substring(6));
         String endday = "" + end + "";
-		int year1 = Integer.parseInt(endday.substring(0,4));
-		int month2 = Integer.parseInt(endday.substring(4,6));
-		int day3 = Integer.parseInt(endday.substring(6));
+        int year1 = Integer.parseInt(endday.substring(0,4));
+        int month2 = Integer.parseInt(endday.substring(4,6));
+        int day3 = Integer.parseInt(endday.substring(6));
         LocalDate startdate = LocalDate.of(year, month, day);
         LocalDate enddate = LocalDate.of(year1, month2, day3);
         LocalDate today = LocalDate.now();
@@ -490,6 +654,11 @@ public class CampusLog implements Serializable
         return this.schoolList;
     }
 
+    public ArrayList<Report> getReportList()
+    {
+        return this.reportlist;
+    }
+
     public void saveRecordLists()
     {
         objectlist.add(getUserList());
@@ -498,58 +667,64 @@ public class CampusLog implements Serializable
         objectlist.add(getKeyList());
         objectlist.add(getDormList());
         objectlist.add(getSchoolList());
+        objectlist.add(getReportList());
     }
 
     /**
-	*This method is responsible for writing the the different lists to a file
-	*@param filename collects the name of the file that the different lists will be saved to
-	*/
-	public void writeList(String filename)
-	{
-		dm.save(filename, this.objectlist);
+    *This method is responsible for writing the the different lists to a file
+    *@param filename collects the name of the file that the different lists will be saved to
+    */
+    public void writeList(String filename)
+    {
+        dm.save(filename, this.objectlist);
     }
 
     public void writeUserList(String filename)
-	{
-		dm.saveUser(filename, this.userlist);
+    {
+        dm.saveUser(filename, this.userlist);
     }
 
     public void writeDriverList(String filename)
-	{
-		dm.saveDriver(filename, this.driverlist);
+    {
+        dm.saveDriver(filename, this.driverlist);
     }
 
     public void writePedestrianList(String filename)
-	{
-		dm.savePedestrian(filename, this.pedestrianlist);
+    {
+        dm.savePedestrian(filename, this.pedestrianlist);
     }
 
     public void writeKeyList(String filename)
-	{
-		dm.saveKey(filename, this.keylist);
+    {
+        dm.saveKey(filename, this.keylist);
     }
 
     public void writeDormList(String filename)
-	{
-		dm.saveDormVisitor(filename, this.dormlist);
+    {
+        dm.saveDormVisitor(filename, this.dormlist);
     }
 
     public void writeSchoolList(String filename)
-	{
-		dm.saveSchoolMember(filename, this.schoolList);
+    {
+        dm.saveSchoolMember(filename, this.schoolList);
     }
-	
-	/**
-	*This method is responsible for reading the contact from a file
-	*@param filename collects the name of the file that the contact list will be obtained from
-	*/
-	public void readList(String filename)
-	{
-		objectlist = dm.read(filename, this.objectlist);
+
+    public void writeReportList(String filename)
+    {
+        dm.saveReport(filename, this.reportlist);
+    }
+
+    /**
+    *This method is responsible for reading the contact from a file
+    *@param filename collects the name of the file that the contact list will be obtained from
+    */
+    public void readList(String filename)
+    {
+        objectlist = dm.read(filename, this.objectlist);
     }
 
     public void readUserList(String filename)
-	{
+    {
         ArrayList<User> users2 = new ArrayList<User>();
         users2 = dm.readUser(filename, users2);
         for(User user: users2)
@@ -560,13 +735,15 @@ public class CampusLog implements Serializable
     }
 
     public void readDriverList(String filename)
-	{
+    {
         ArrayList<Driver> drivers2 = new ArrayList<Driver>();
         drivers2 = dm.readDriver(filename, drivers2);
         for(Driver driver: drivers2)
         {
             String[] names = driver.getName().split(" ");
+            String exit = driver.getExitTime();
             createDriver(names[0], names[1], driver.getEntryDate(), driver.getEntryTime(), driver.getPurpose(), driver.getLicenseNum(), driver.getColor(), driver.getMake(), driver.getModel());
+            driverlist.get(driverlist.size()-1).setExitTime(exit);
         }
         
     }
@@ -578,30 +755,38 @@ public class CampusLog implements Serializable
         for(Pedestrian ped: peds2)
         {
             String[] names = ped.getName().split(" ");
+            String exit = ped.getExitTime();
             createPedestrian(names[0], names[1], ped.getEntryDate(), ped.getEntryTime(), ped.getPurpose());
+            pedestrianlist.get(pedestrianlist.size()-1).setExitTime(exit);
         }
     }
 
     public void readKeyList(String filename)
-	{
+    {
+        this.keylist = dm.readKeys(filename, this.keylist);
         //ArrayList<KeyManager> keys2 = new ArrayList<KeyManager>();
-        keylist = dm.readKey(filename, this.keylist);
-		/*for(KeyManager key: keys2)
+        //keys2 = dm.readKey(filename, keys2);
+        /*for(KeyManager key: keys2)
         {
             String[] names = key.getLoaneeName().split(" ");
-            createUser(names[0], names[1], ped.getEntryDate(), ped.getEntryTime(), ped.getPurpose());
+            String exit = key.getReturnTime();
+            int numkeys = key.getNumOfKeys();
+            int entryNo = key.getEntryNo();
+            createKey(key.getKeyNum(), key.getKeyName(), key.getKeyDate(), names[0], names[1], key.getLoanedTime(), key.getKeyPurpose());
         }*/
     }
 
     public void readDormList(String filename)
     {
         ArrayList<DormVisitor> dorm2 = new ArrayList<DormVisitor>();
-        peds2 = dm.readDormVisitor(filename, dorm2);
+        dorm2 = dm.readDormVisitor(filename, dorm2);
         for(DormVisitor dv: dorm2)
         {
             String[] names = dv.getName().split(" ");
             String[] names2 = dv.getVisiteeName().split(" ");
-            createDormVisitor(names[0], names[1], dv.getEntryDate(), dv.getEntryTime(), dv.getPurpose(), dv.getVisitorID(), names2[0], names[1], dv.getVisiteeID());
+            String exit = dv.getExitTime();
+            createDormVisitor(names[0], names[1], dv.getEntryDate(), dv.getEntryTime(), dv.getPurpose(), dv.getVisitorID(), names2[0], names2[1], dv.getVisiteeID());
+            dormlist.get(dormlist.size()-1).setExitTime(exit);
         }
     }
 
@@ -612,17 +797,33 @@ public class CampusLog implements Serializable
         for(SchoolMember sm: school2)
         {
             String[] names = sm.getName().split(" ");
-            String[] vehicles = sm.getVehiclesList().toArray(new String[sm.getVehicleList().size()]);
-            String lnum = vehicle[0].getLicenseNum();
-            String col = vehicle[0].getColor();
-            String mk = vehicle[0].getMake();
-            String mod = vehicle[0].getModel();
-            createDormVisitor(names[0], names[1], sm.getType.toString(), sm.getRegistryDate(), lnum, col, mk, mod);
-            for(i=1; i < vehicles.length; i++)
+            Vehicle[] vehicles = sm.getVehicleList().toArray(new Vehicle[sm.getVehicleList().size()]);
+            String lnum = vehicles[0].getLicenseNum();
+            String col = vehicles[0].getColor();
+            String mk = vehicles[0].getMake();
+            String mod = vehicles[0].getModel();
+            createSchoolMember(names[0], names[1], sm.getType().toString(), sm.getID(), sm.getRegistryDate(), lnum, col, mk, mod);
+            if(vehicles.length > 1)
             {
-                school2.get(school2.size()-1).addVehicle(vehicle[i].getLicenseNum(), vehicle[i].getColor(), vehicle[i].getMake(), vehicle[i].getModel());
+                for(int i = 1; i < vehicles.length; i++)
+                {
+                    schoolList.get(schoolList.size()-1).addVehicle(vehicles[i].getLicenseNum(), vehicles[i].getColor(), vehicles[i].getMake(), vehicles[i].getModel());
+                }
             }
         }
+    }
+
+    public void readReportList(String filename)
+    {
+        
+        this.reportlist = dm.readReport(filename, reportlist);
+        /*ArrayList<Report> rep2 = new ArrayList<Report>();
+        rep2 = dm.readReport(filename, rep2);
+        for(Report rep: rep2)
+        {
+            String[] names = user.getName().split(" ");
+            createReport(names[0], names[1], rep.getUserType(), rep.getID(), rep.getReportInfo(), rep.getReportType(), rep.getTimePeriod());
+        }*/
     }
 
     public void getLists()
@@ -630,9 +831,10 @@ public class CampusLog implements Serializable
         readUserList("UserInfo.txt");
         readDriverList("Driver.txt");
         readPedestrianList("PedestrianInfo.txt");
-        readKeyList("KeyInfo.txt");
-        readDormList("DormVisitor.txt");
-        readSchoolList("SchoolMember.txt");
+        readKeyList("Keyinfo.txt");
+        readDormList("DormInfo.txt");
+        readSchoolList("MemberInfo.txt");
+        readReportList("ReportInfo.txt");
     } 
 
     public void saveLists()
@@ -640,8 +842,9 @@ public class CampusLog implements Serializable
         writeUserList("UserInfo.txt");
         writeDriverList("Driver.txt");
         writePedestrianList("PedestrianInfo.txt");
-        writeKeyList("KeyInfo.txt");
-        writeDormList("DormVisitor.txt");
-        writeSchoolList("SchoolMember.txt");
+        writeKeyList("Keyinfo.txt");
+        writeDormList("DormInfo.txt");
+        writeSchoolList("MemberInfo.txt");
+        writeReportList("ReportInfo.txt");
     }
 }

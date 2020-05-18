@@ -4,18 +4,18 @@ public class KeyManager extends Key implements Serializable
 {
 	
 	private Name loaneeName;
-	private static int entries;
+	//private static int entries;
 	private int entryNo;
 	private int numOfKeysLoaned;
 	private String loanedTime;
 	private String returnTime;
 	private String keyPurpose;
 	
-	public KeyManager(String keynum, String keyname, long keydate, String fname, String lname, int numkeysloaned, String timeloaned, String keypurpose) 
+	public KeyManager(String keynum, String keyname, long keydate, String fname, String lname, int numkeysloaned, String timeloaned, String keypurpose, int entries) 
 	{
 		super(keynum, keyname, keydate);
 		loaneeName = new Name(fname, lname);
-		entries++;
+		//entries++;
 		entryNo = entries;
 		numOfKeysLoaned = numkeysloaned;
 		loanedTime = timeloaned;
@@ -75,8 +75,8 @@ public class KeyManager extends Key implements Serializable
 	public String toString()
 	{
 		String[] names = getLoaneeName().split(" ");
-		String record1 = "Entry#: " + getEntryNo() + "\tKey Date: " + super.toString(getKeyDate()) + "\tKey#: " + getKeyNum() + "\tKey Name:" + getKeyName() + "\tLoanee Firstname: " + names[0] + "\tLoannee Lastname: " + names[1];
-		String record2 = "\tNumber of Keys Loaned" + getNumOfKeys() + "\tTime Loaned" + getLoanedTime() + "\tPurpose" + getKeyPurpose() + "\tTime Returned: " + getReturnTime();
+		String record1 = "Entry#:   " + getEntryNo() + "\tKey Date:   " + super.toString(getKeyDate()) + "\tKey#:   " + getKeyNum() + "\tKey Name:   " + getKeyName() + "\tLoanee Firstname:   " + names[0] + "\tLoannee Lastname:   " + names[1];
+		String record2 = "\t   Number of Keys Loaned:   " + getNumOfKeys() + "\tTime Loaned:   " + getLoanedTime() + "\tPurpose:   " + getKeyPurpose() + "\tTime Returned:   " + getReturnTime();
 		String records = record1 + record2 + "\n";
 		return records;
 	}

@@ -1,9 +1,11 @@
+import java.io.*;
+
 public class DormVisitor extends Visitor implements Serializable
 {
     private static int entries = 0;
     private int entryNo;
     private long visitorIDNum;
-    private String visiteeName;
+    private Name visiteeName;
     private long visiteeIDNum;
 
     public DormVisitor(String fname, String lname, long date, String entime, String purp, long vtorID, String vteefname, String vteelname, long vteeID)
